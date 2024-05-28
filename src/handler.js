@@ -1,5 +1,9 @@
 const path = require('path');
 const stream = require('stream');
+const axios = require('axios');
+
+axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const uploadFileHandler = async(req, res, bucket, bucketName) => {
     if (!req.file) {
@@ -33,13 +37,47 @@ const uploadFileHandler = async(req, res, bucket, bucketName) => {
             console.error('Error uploading file to Google Cloud Storage:', err);
             return res.status(500).send('Error uploading file.');
         });
-
     } catch (error) {
         console.error('Error during file upload process:', error);
         return res.status(500).send('Error uploading file.');
     }
 }
 
+const sentimentAnalysisHandler = async (req,res) => {
+    const { text } = req.body;
+    
+    if (!req.body) {
+        console.log("no file uploaded");
+        return res.status(400).json("No text input");
+    }
+
+    try {
+        const response = await axios.post('/predict', {
+            text: text
+        })
+
+        console.log(response.data);
+        return res.status(200).json({message: "Succeed Doing Sentiment Analysis", result: `${JSON.stringify(response.data)}`})
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
+const uploadLinkHandler = async(req,res) => {
+    const { link } = req.body;
+
+    if (!req.body) {
+        console.log("Body empty");
+        return res.status(400).json({message: "Failed"})
+    }
+
+    console.log("Link: ", link);
+    return res.status(200).json({message: "Succeed", link: `${link}`})
+}
+
 module.exports = {
-    uploadFileHandler
+    uploadFileHandler,
+    sentimentAnalysisHandler,
+    uploadLinkHandler
 }
