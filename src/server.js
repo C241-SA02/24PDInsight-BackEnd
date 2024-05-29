@@ -5,6 +5,7 @@ const axios = require('axios');
 
 const { bucketName, bucket, upload } = require('./bucket');
 const { uploadFileHandler, sentimentAnalysisHandler, uploadLinkHandler } = require('./handler');
+const { addUserHandler } = require('./firestore');
 
 const app = express();
 
@@ -13,6 +14,10 @@ const port = 3001;
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
+
+app.post('/api/adduser', (req,res) => {
+    addUserHandler(req,res)
+})
 
 app.post('/api/uploadfile', upload.single('file'), async (req, res) => {
     uploadFileHandler(req, res, bucket, bucketName)
