@@ -2,7 +2,7 @@ const path = require('path');
 const stream = require('stream');
 const axios = require('axios');
 
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://m0t98818-5000.asse.devtunnels.ms/';
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const uploadFileHandler = async(req, res, bucket, bucketName) => {
@@ -72,8 +72,23 @@ const uploadLinkHandler = async(req,res) => {
         return res.status(400).json({message: "Failed"})
     }
 
-    console.log("Link: ", link);
-    return res.status(200).json({message: "Succeed", link: `${link}`})
+const tempURL = "https://www.youtube.com/watch?v=lilaaEvEEjw";
+
+    try {
+        const response = await axios.post('/transcribe', {
+            url: tempURL
+        });
+
+        const data = response.data;
+        console.log(data);
+        return res.status(200).json({
+            message: "Transcribe Succeed",
+            data: data
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Error occurred", error: error.message });
+    }
 }
 
 module.exports = {
