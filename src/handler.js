@@ -1,12 +1,22 @@
 const path = require('path');
-const stream = require('stream');
+
 const axios = require('axios');
-const { log } = require('console');
+const { uploadToBucket, deleteTempFile } = require('./bucket');
+const {addDataToFirestore} = require('./firestore');
 
 axios.defaults.baseURL = 'https://m0t98818-5000.asse.devtunnels.ms/';
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const uploadHandler = async (req, res, bucket, bucketName) => {
+    if (!req.body.uid) {
+        console.log("User not authenticated");
+        return res.status(400).json({
+            message: "User is not authenticated"
+        })
+    }
+
+    const uid = req.body.uid
+
     if (!req.file && !req.body.link) {
         console.log("No file or link attached");
         return res.status(400).json({
@@ -14,23 +24,18 @@ const uploadHandler = async (req, res, bucket, bucketName) => {
         })
     }
 
-    console.log(req.file);
-    console.log(req.body.link);
-
-    // If a link is provided, handle it
     if (req.body.link) {
-        console.log("ke link ", req.body.link);
-        return linkHandler(res, req.body.link);
+        console.log("Processing link: ", req.body.link);
+        return linkHandler(res, req.body.link, uid);
     }
 
-    // If a file is provided, handle it
     if (req.file) {
-        console.log("ke file");
-        return file(req, res, bucketName, bucket);
+        console.log("Processing file upload");
+        return file(res, req.file, uid);
     }
 };
 
-const linkHandler = async (res, link) => {
+const linkHandler = async (res, link, uid) => {
     if (!link) {
         console.log("Body empty");
         return res.status(400).json({ message: "Failed" });
@@ -39,7 +44,7 @@ const linkHandler = async (res, link) => {
     try {
         const transcribeResult = await axios.post('/transcribe', { url: link });
 
-        const data = await process(transcribeResult)
+        const data = await process(transcribeResult, uid)
 
         return res.status(200).json({
             message: "Succeed",
@@ -51,17 +56,26 @@ const linkHandler = async (res, link) => {
     }
 };
 
-const deleteTempFile = async (bucket, newFileName, res) => {
-    try {
-        await bucket.file(newFileName).delete();
-        console.log(`File with name ${newFileName} is deleted.`);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Error occurred", error: error.message });
-    }
-}
+const file = async (res, file , uid) => {
+    const uploadFile = await uploadToBucket(res, file)
 
-const process = async (transcribeResult) => {
+    try {
+        const transcribeResult = await axios.post('/transcribe', { url: uploadFile.fileURL });
+        deleteTempFile(res, uploadFile.newFileName);
+        const data = await process(transcribeResult, uid);
+
+        return res.status(200).json({
+            message: 'File and form data uploaded and processed.',
+            data: data
+        });
+    } catch (transcriptionError) {
+        console.error('Error in transcription request:', transcriptionError);
+        return res.status(500).send('Error processing transcription.');
+    }
+
+};
+
+const process = async (transcribeResult, uid) => {
     const result = transcribeResult.data.transcription;
 
     console.log('Transcription response: ', result, "\n");
@@ -84,6 +98,10 @@ const process = async (transcribeResult) => {
             topicModel: topicModel.data.topics
         };
 
+        // axios.post('http://localhost:3001/addData', data)
+        // const dummyID = "DummyID"
+        addDataToFirestore(data, uid)
+
         console.log("Data result : ", data, "\n");
 
         return data;
@@ -93,59 +111,15 @@ const process = async (transcribeResult) => {
     }
 }
 
-const file = async(req, res, bucketName, bucket) => {
-    const file = req.file
-
-    const timestamp = Date.now();
-    const randomNum = Math.floor(Math.random() * 10000);
-    const fileExtension = path.extname(req.file.originalname);
-    const newFileName = `audio-${timestamp}-${randomNum}${fileExtension}`;
-
-    console.log("File Uploaded: ", file);
-
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(file.buffer);
-
-    const fileURL = `https://storage.googleapis.com/${bucketName}/${newFileName}`;
-
-    try {
-        const file = bucket.file(newFileName);
-        const streamPromise = new Promise((resolve, reject) => {
-            bufferStream.pipe(file.createWriteStream({
-                resumable: false,
-                metadata: {
-                    contentType: file.mimetype,
-                },
-            }))
-                .on('finish', resolve)
-                .on('error', reject);
-        });
-
-        await streamPromise;
-        console.log(`File uploaded to ${fileURL}`);
-
-        try {
-            const transcribeResult = await axios.post('/transcribe', {
-                url: fileURL,
-            });
-
-            deleteTempFile(bucket, newFileName, res);
-            const data = await process(transcribeResult);
-
-            return res.status(200).json({
-                message: 'File and form data uploaded and processed.',
-                data: data
-            }
-            );
-        } catch (transcriptionError) {
-            console.error('Error in transcription request:', transcriptionError);
-            return res.status(500).send('Error processing transcription.');
-        }
-    } catch (uploadError) {
-        console.error('Error uploading file to Google Cloud Storage:', uploadError);
-        return res.status(500).send('Error uploading file.');
-    }
-}
+// const deleteTempFile = async (bucket, newFileName, res) => {
+//     try {
+//         await bucket.file(newFileName).delete();
+//         console.log(`File with name ${newFileName} is deleted.`);
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ message: "Error occurred", error: error.message });
+//     }
+// }
 
 module.exports = {
     uploadHandler,
