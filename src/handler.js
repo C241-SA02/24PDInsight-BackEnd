@@ -1,6 +1,7 @@
 const path = require('path');
 const stream = require('stream');
 const axios = require('axios');
+const { log } = require('console');
 
 axios.defaults.baseURL = 'https://m0t98818-5000.asse.devtunnels.ms/';
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -37,17 +38,8 @@ const linkHandler = async (res, link) => {
 
     try {
         const transcribeResult = await axios.post('/transcribe', { url: link });
-        const transcription = transcribeResult.data.transcription;
-        // console.log('Transcription response: ', transcription);
-        
-        const sentimentAnalysis = await axios.post('/sentiment', { transcription: transcription });
-        const wordcloud = await axios.post('/wordcloud', { transcription:transcription });
 
-        const data = {
-            transcribe: transcription,
-            sentiment: sentimentAnalysis.data.sentiment_analysis,
-            wordcloud: wordcloud.data.wordcloud
-        };
+        const data = await process(transcribeResult)
 
         return res.status(200).json({
             message: "Succeed",
@@ -70,25 +62,35 @@ const deleteTempFile = async (bucket, newFileName, res) => {
 }
 
 const process = async (transcribeResult) => {
-    const result = transcribeResult.data.transcription
+    const result = transcribeResult.data.transcription;
 
-    console.log('Transcription response: ', result);
+    console.log('Transcription response: ', result, "\n");
 
-    const sentimentAnalysis = await axios.post('/sentiment', {
-        transcription: result
-    })
+    try {
+        const [sentimentAnalysis, wordcloud, summarize, entity, topicModel] = await Promise.all([
+            axios.post('/sentiment', { transcription: result }),
+            axios.post('/wordcloud', { transcription: result }),
+            axios.post('/summarize', { transcription: result }),
+            axios.post('/entity', { transcription: result }),
+            axios.post('/topic_model', { transcription: result })
+        ]);
 
-    const wordcloud = await axios.post('/wordcloud', {
-        transcription: result
-    })
+        const data = {
+            transcribe: result,
+            sentiment: sentimentAnalysis.data.sentiment_analysis,
+            wordcloud: wordcloud.data.wordcloud,
+            summarize: summarize.data.summary,
+            entity: entity.data.ner_analysis,
+            topicModel: topicModel.data.topics
+        };
 
-    const data = {
-        transcribe: transcribeResult.data.transcription,
-        sentiment: sentimentAnalysis.data.sentiment_analysis,
-        wordcloud: wordcloud.data.wordcloud
+        console.log("Data result : ", data, "\n");
+
+        return data;
+    } catch (error) {
+        console.error("An error occurred while processing the transcription: ", error);
+        throw error;  // Rethrow the error if you want it to be handled by the caller
     }
-
-    return data
 }
 
 const file = async(req, res, bucketName, bucket) => {
