@@ -7,7 +7,7 @@ const {addDataToFirestore} = require('./firestore');
 axios.defaults.baseURL = 'https://m0t98818-5000.asse.devtunnels.ms/';
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
-const uploadHandler = async (req, res, bucket, bucketName) => {
+const uploadHandler = async (req, res) => {
     if (!req.body.uid) {
         console.log("User not authenticated");
         return res.status(400).json({
@@ -98,8 +98,6 @@ const process = async (transcribeResult, uid) => {
             topicModel: topicModel.data.topics
         };
 
-        // axios.post('http://localhost:3001/addData', data)
-        // const dummyID = "DummyID"
         addDataToFirestore(data, uid)
 
         console.log("Data result : ", data, "\n");
@@ -110,16 +108,6 @@ const process = async (transcribeResult, uid) => {
         throw error;  // Rethrow the error if you want it to be handled by the caller
     }
 }
-
-// const deleteTempFile = async (bucket, newFileName, res) => {
-//     try {
-//         await bucket.file(newFileName).delete();
-//         console.log(`File with name ${newFileName} is deleted.`);
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({ message: "Error occurred", error: error.message });
-//     }
-// }
 
 module.exports = {
     uploadHandler,
