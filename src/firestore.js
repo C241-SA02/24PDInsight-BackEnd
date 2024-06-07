@@ -32,9 +32,8 @@ const addUserHandler = async (req, res) => {
 const addDataToFirestore = async (
   data,
   userID,
-  // res
+  docID
 ) => {
-  const uid = crypto.randomUUID();
   try {
     // Membuat referensi ke koleksi dengan ID acak (uid)
     const userCollectionRef = firestore.collection("users").doc(userID).collection("transcribe");
@@ -42,16 +41,11 @@ const addDataToFirestore = async (
     const now = getReadableTimestamp()
 
     // Mendapatkan dokumen dari koleksi
-    const userDocRef = userCollectionRef.doc(uid);
+    const userDocRef = userCollectionRef.doc(docID);
     const retreivedData = {
-      transcribe: data.transcribe,
-      sentiment: data.sentiment,
-      wordcloud: data.wordcloud,
-      summarize: data.summarize,
-      entity: data.entity,
-      topicModel: data.topicModel,
+      transcribe: data,
       createdAt: now
-  };
+    };
 
     await userDocRef.set(retreivedData);
 
@@ -61,12 +55,28 @@ const addDataToFirestore = async (
     //   data: retreivedData
     // });
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     // return res.status(400).json({
     //   message: "Failed to add data on Firestore",
     //   error: error.message
     // });
   }
+}
+
+const updateDataToFirestore = async (
+  data,
+  userID,
+  docID,
+  inputDataTitle
+) => {
+  const userCollectionRef = firestore.collection("users").doc(userID).collection("transcribe");
+  const now = getReadableTimestamp()
+  const userDocRef = userCollectionRef.doc(docID);
+  const retreivedData = {
+    [inputDataTitle]: data[inputDataTitle],
+    updatedAt: now
+  };
+  await userDocRef.update(retreivedData);
 }
 
 function getReadableTimestamp() {
@@ -85,4 +95,5 @@ function getReadableTimestamp() {
 module.exports = {
   addUserHandler,
   addDataToFirestore,
+  updateDataToFirestore
 }

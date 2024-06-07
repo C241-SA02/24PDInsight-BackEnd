@@ -2,7 +2,8 @@ const path = require('path');
 
 const axios = require('axios');
 const { uploadToBucket, deleteTempFile } = require('./bucket');
-const {addDataToFirestore} = require('./firestore');
+const { addDataToFirestore } = require('./firestore');
+const { hitEntity, hitSentiment, hitSummarize, hitTopics, hitWordcloud } = require('./helper');
 
 axios.defaults.baseURL = 'https://m0t98818-5000.asse.devtunnels.ms/';
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -23,6 +24,8 @@ const uploadHandler = async (req, res) => {
             message: "No file or link attached. Please Attach File"
         })
     }
+
+    
 
     if (req.body.link) {
         console.log("Processing link: ", req.body.link);
@@ -47,8 +50,8 @@ const linkHandler = async (res, link, uid) => {
         const data = await process(transcribeResult, uid)
 
         return res.status(200).json({
-            message: "Succeed",
-            data: data
+            message: `Success to add transcribe with document id ${data.docid}`,
+            data: data.transcribe
         });
     } catch (error) {
         console.error('Error occurred:', error);
@@ -77,36 +80,26 @@ const file = async (res, file , uid) => {
 
 const process = async (transcribeResult, uid) => {
     const result = transcribeResult.data.transcription;
+    const docID = "Testing"
+    addDataToFirestore(result, uid, docID)
+    hitOther(result, uid, docID)
 
-    console.log('Transcription response: ', result, "\n");
+    console.log(`Added to firestore with Document ID : ${docID} and User ID : ${uid}`);
 
-    try {
-        const [sentimentAnalysis, wordcloud, summarize, entity, topicModel] = await Promise.all([
-            axios.post('/sentiment', { transcription: result }),
-            axios.post('/wordcloud', { transcription: result }),
-            axios.post('/summarize', { transcription: result }),
-            axios.post('/entity', { transcription: result }),
-            axios.post('/topic_model', { transcription: result })
-        ]);
-
-        const data = {
-            transcribe: result,
-            sentiment: sentimentAnalysis.data.sentiment_analysis,
-            wordcloud: wordcloud.data.wordcloud,
-            summarize: summarize.data.summary,
-            entity: entity.data.ner_analysis,
-            topicModel: topicModel.data.topics
-        };
-
-        addDataToFirestore(data, uid)
-
-        console.log("Data result : ", data, "\n");
-
-        return data;
-    } catch (error) {
-        console.error("An error occurred while processing the transcription: ", error);
-        throw error;  // Rethrow the error if you want it to be handled by the caller
+    const data = {
+        docid: docID,
+        transcribe: result
     }
+
+    return data
+}
+
+const hitOther = (transcribeResult, uid, docID) => {
+    hitSentiment(transcribeResult, uid, docID)
+    hitEntity(transcribeResult, uid, docID)
+    hitSummarize(transcribeResult, uid, docID)
+    hitTopics(transcribeResult, uid, docID)
+    hitWordcloud(transcribeResult, uid, docID)
 }
 
 module.exports = {
