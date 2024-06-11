@@ -50,16 +50,8 @@ const addDataToFirestore = async (
     await userDocRef.set(retreivedData);
 
     console.log("Succeed with data: ", retreivedData);
-    // return res.status(200).json({
-    //   message: "Success to add data on Firestore",
-    //   data: retreivedData
-    // });
   } catch (error) {
     console.log(error);
-    // return res.status(400).json({
-    //   message: "Failed to add data on Firestore",
-    //   error: error.message
-    // });
   }
 }
 
@@ -95,5 +87,7 @@ function getReadableTimestamp() {
 module.exports = {
   addUserHandler,
   addDataToFirestore,
-  updateDataToFirestore
+  updateDataToFirestore,
+  firestore,
+  getReadableTimestamp
 }

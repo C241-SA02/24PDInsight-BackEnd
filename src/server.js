@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const { upload } = require('./bucket');
 const { uploadHandler } = require('./handler');
-const { addUserHandler } = require('./firestore');
+const { addUserHandler, firestore, getReadableTimestamp } = require('./firestore');
 
 const app = express();
 
@@ -21,9 +21,9 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     uploadHandler(req, res)
 });
 
-app.get('/getData', async (req, res) => {
-    const userID = req.query.userID;
-    const docID = req.query.docID;
+app.get('/api/getdata', async (req, res) => {
+    const userID = req.query.uid;
+    const docID = req.query.transcribeid;
 
     if (!userID || !docID) {
         return res.status(400).send('Missing userID or docID parameter');
@@ -36,8 +36,14 @@ app.get('/getData', async (req, res) => {
         if (!doc.exists) {
             return res.status(404).send('Document not found');
         }
+        
+        const now = getReadableTimestamp()
+        console.log("Hit on", now);
 
-        return res.status(200).json(doc.data());
+        return res.status(200).json({
+            message: "Success",
+            data: doc.data()
+        });
     } catch (error) {
         console.error('Error getting document:', error);
         return res.status(500).send('Error getting document');
