@@ -3,10 +3,10 @@ const multer = require('multer');
 const path = require('path');
 const stream = require('stream');
 
-const credentials = path.join("./bucket.json") 
+const credentials = path.join("projects/837157136269/secrets/backend/versions/1") 
 
 // GOOGLE BUCKET
-const storage = new Storage({ keyFilename: credentials });
+const storage = new Storage({ projectId: "pdinsight" });
 const bucketName = 'files-bucket-24pdinsight'
 const bucket = storage.bucket(bucketName);
 const upload = multer({
