@@ -80,7 +80,7 @@ const file = async (res, file , uid) => {
 
 const process = async (transcribeResult, uid) => {
     const result = transcribeResult.data.transcription;
-    const docID = "Testing"
+    const docID = crypto.randomUUID()
     addDataToFirestore(result, uid, docID)
     hitOther(result, uid, docID)
 
