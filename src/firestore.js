@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 // const credentials = path.join("projects/837157136269/secrets/backend/versions/1")
-const firestore = new Firestore({ databaseId: 'default' });
+const firestore = new Firestore({ databaseId: '(default)' });
 
 const addUserHandler = async (req, res) => {
   const { uid } = req.body;
