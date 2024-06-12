@@ -2,8 +2,8 @@ const { Firestore } = require('@google-cloud/firestore');
 const path = require('path');
 const crypto = require('crypto');
 
-const credentials = path.join("./bucket.json")
-const firestore = new Firestore({ keyFilename: credentials });
+// const credentials = path.join("projects/837157136269/secrets/backend/versions/1")
+const firestore = new Firestore({ databaseId: '(default)' });
 
 const addUserHandler = async (req, res) => {
   const { uid } = req.body;
