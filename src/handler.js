@@ -1,11 +1,9 @@
-const path = require('path');
-
 const axios = require('axios');
 const { uploadToBucket, deleteTempFile } = require('./bucket');
 const { addDataToFirestore } = require('./firestore');
 const { hitEntity, hitSentiment, hitSummarize, hitTopics, hitWordcloud } = require('./helper');
 
-axios.defaults.baseURL = 'https://m0t98818-5000.asse.devtunnels.ms/';
+axios.defaults.baseURL = 'https://flask-api-o3gamajnoa-et.a.run.app';
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const uploadHandler = async (req, res) => {
@@ -24,8 +22,6 @@ const uploadHandler = async (req, res) => {
             message: "No file or link attached. Please Attach File"
         })
     }
-
-    
 
     if (req.body.link) {
         console.log("Processing link: ", req.body.link);
