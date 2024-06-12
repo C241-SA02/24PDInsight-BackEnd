@@ -29,8 +29,10 @@ const uploadHandler = async (req, res) => {
     }
 
     if (req.file) {
+        const fileName = req.file.originalname || req.file.filename;
+        console.log("Uploaded file name: ", fileName);
         console.log("Processing file upload");
-        return file(res, req.file, uid);
+        return file(res, req.file, uid, fileName);
     }
 };
 
@@ -43,11 +45,11 @@ const linkHandler = async (res, link, uid) => {
     try {
         const transcribeResult = await axios.post('/transcribe', { url: link });
 
-        const data = await process(transcribeResult, uid)
+        const data = await process(transcribeResult, uid, link)
 
         return res.status(200).json({
             message: `Success to add transcribe with document id ${data.docid}`,
-            data: data.transcribe
+            data: data,
         });
     } catch (error) {
         console.error('Error occurred:', error);
@@ -55,13 +57,13 @@ const linkHandler = async (res, link, uid) => {
     }
 };
 
-const file = async (res, file , uid) => {
+const file = async (res, file , uid, filename) => {
     const uploadFile = await uploadToBucket(res, file)
 
     try {
         const transcribeResult = await axios.post('/transcribe', { url: uploadFile.fileURL });
         deleteTempFile(res, uploadFile.newFileName);
-        const data = await process(transcribeResult, uid);
+        const data = await process(transcribeResult, uid, filename);
 
         return res.status(200).json({
             message: 'File and form data uploaded and processed.',
@@ -74,10 +76,10 @@ const file = async (res, file , uid) => {
 
 };
 
-const process = async (transcribeResult, uid) => {
+const process = async (transcribeResult, uid, filename) => {
     const result = transcribeResult.data.transcription;
     const docID = crypto.randomUUID()
-    addDataToFirestore(result, uid, docID)
+    addDataToFirestore(result, uid, docID, filename)
     hitOther(result, uid, docID)
 
     console.log(`Added to firestore with Document ID : ${docID} and User ID : ${uid}`);

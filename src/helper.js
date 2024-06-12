@@ -19,7 +19,7 @@ const hitSentiment = async (transcribeResult, uid, docID) => {
         return data;
     } catch (error) {
         console.error("An error occurred while processing the transcription: ", error);
-        throw error;
+        return error;
     }
 }
 
@@ -41,7 +41,7 @@ const hitWordcloud = async (transcribeResult, uid, docID) => {
         return data;
     } catch (error) {
         console.error("An error occurred while processing the transcription: ", error);
-        throw error;
+        return error;
     }
 }
 
@@ -63,7 +63,7 @@ const hitSummarize = async (transcribeResult, uid, docID) => {
         return data;
     } catch (error) {
         console.error("An error occurred while processing the transcription: ", error);
-        throw error;
+        return error;
     }
 }
 
@@ -85,7 +85,7 @@ const hitEntity = async (transcribeResult, uid, docID) => {
         return data;
     } catch (error) {
         console.error("An error occurred while processing the transcription: ", error);
-        throw error;
+        return error;
     }
 }
 
@@ -107,7 +107,7 @@ const hitTopics = async (transcribeResult, uid, docID) => {
         return data;
     } catch (error) {
         console.error("An error occurred while processing the transcription: ", error);
-        throw error;
+        return error;
     }
 }
 

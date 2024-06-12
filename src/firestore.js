@@ -2,7 +2,6 @@ const { Firestore } = require('@google-cloud/firestore');
 const path = require('path');
 const crypto = require('crypto');
 
-// const credentials = path.join("projects/837157136269/secrets/backend/versions/1")
 const firestore = new Firestore({ databaseId: '(default)' });
 
 const addUserHandler = async (req, res) => {
@@ -32,7 +31,8 @@ const addUserHandler = async (req, res) => {
 const addDataToFirestore = async (
   data,
   userID,
-  docID
+  docID,
+  filename
 ) => {
   try {
     // Membuat referensi ke koleksi dengan ID acak (uid)
@@ -44,7 +44,8 @@ const addDataToFirestore = async (
     const userDocRef = userCollectionRef.doc(docID);
     const retreivedData = {
       transcribe: data,
-      createdAt: now
+      createdAt: now,
+      filename: filename
     };
 
     await userDocRef.set(retreivedData);
