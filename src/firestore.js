@@ -2,7 +2,7 @@ const { Firestore } = require('@google-cloud/firestore');
 const path = require('path');
 const crypto = require('crypto');
 
-const firestore = new Firestore({ databaseId: 'fs24pdinsight' });
+const firestore = new Firestore({ databaseId: 'firestore24pdinsight' });
 
 const addUserHandler = async (req, res) => {
   const { uid } = req.body;
