@@ -1,7 +1,7 @@
 const { Firestore } = require('@google-cloud/firestore');
 const path = require('path');
 const crypto = require('crypto');
-const moment = require('moment-timezon');
+const moment = require('moment-timezone');
 
 const firestore = new Firestore({ databaseId: 'firestore24pdinsight' });
 
