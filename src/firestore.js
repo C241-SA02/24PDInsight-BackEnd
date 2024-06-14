@@ -1,6 +1,7 @@
 const { Firestore } = require('@google-cloud/firestore');
 const path = require('path');
 const crypto = require('crypto');
+const moment = require('moment-timezon');
 
 const firestore = new Firestore({ databaseId: 'firestore24pdinsight' });
 
@@ -38,7 +39,7 @@ const addDataToFirestore = async (
     // Membuat referensi ke koleksi dengan ID acak (uid)
     const userCollectionRef = firestore.collection("users").doc(userID).collection("transcribe");
 
-    const now = getReadableTimestamp()
+    const now = moment().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
 
     // Mendapatkan dokumen dari koleksi
     const userDocRef = userCollectionRef.doc(docID);
@@ -72,23 +73,22 @@ const updateDataToFirestore = async (
   await userDocRef.update(retreivedData);
 }
 
-function getReadableTimestamp() {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero for single-digit months
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
+// function getReadableTimestamp() {
+//   const date = new Date();
+//   const year = date.getFullYear();
+//   const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero for single-digit months
+//   const day = String(date.getDate()).padStart(2, '0');
+//   const hours = String(date.getHours()).padStart(2, '0');
+//   const minutes = String(date.getMinutes()).padStart(2, '0');
+//   const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  return timestamp;
-}
+//   const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+//   return timestamp;
+// }
 
 module.exports = {
   addUserHandler,
   addDataToFirestore,
   updateDataToFirestore,
   firestore,
-  getReadableTimestamp
 }
