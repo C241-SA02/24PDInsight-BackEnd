@@ -3,7 +3,8 @@ const path = require('path');
 const crypto = require('crypto');
 const moment = require('moment-timezone');
 
-const firestore = new Firestore({ databaseId: 'firestore24pdinsight' });
+const credentials = path.join("./service-account.json")
+const firestore = new Firestore({ keyFilename: credentials });
 
 const addUserHandler = async (req, res) => {
   const { uid } = req.body;

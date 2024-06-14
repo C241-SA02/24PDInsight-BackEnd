@@ -1,7 +1,6 @@
-Sure! Here’s a README template for your GitHub repository:
+Certainly! Here's the updated `README.md` template with the modification in step 3 to include instructions for adding a `service-account.json` file:
 
----
-
+```markdown
 # 24PDInsight BackEnd
 
 This repository contains the backend code for the 24PDInsight project. The backend is developed using JavaScript and the Express.js framework, and it is deployed on Google Cloud Platform (GCP) using Cloud Run.
@@ -48,42 +47,16 @@ This repository contains the backend code for the 24PDInsight project. The backe
    npm install
    ```
 
-3. **Set up environment variables:**
+3. **Add Firebase service account credentials:**
    
-   Create a `.env` file in the root directory and add the following variables:
+   Download your Firebase service account JSON file (`service-account.json`) from the Firebase console.
 
-   ```env
-   PORT=your_port_number
-   FIREBASE_API_KEY=your_firebase_api_key
-   FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-   FIREBASE_PROJECT_ID=your_firebase_project_id
-   FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-   FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-   FIREBASE_APP_ID=your_firebase_app_id
-   GOOGLE_CLOUD_PROJECT_ID=your_google_cloud_project_id
-   GOOGLE_CLOUD_BUCKET_NAME=your_google_cloud_bucket_name
-   ```
+   Place the `service-account.json` file in the root directory of this project.
 
 4. **Run the development server:**
 
    ```sh
    npm start
-   ```
-
-## Deployment
-
-The backend is deployed using Google Cloud Platform. Follow these steps to deploy:
-
-1. **Build the project:**
-
-   ```sh
-   npm run build
-   ```
-
-2. **Deploy to Cloud Run:**
-
-   ```sh
-   gcloud run deploy
    ```
 
 ## Database Setup
@@ -93,18 +66,6 @@ The backend is deployed using Google Cloud Platform. Follow these steps to deplo
 
 Ensure that your Google Cloud project has these services enabled and configured.
 
-## Authentication
-
-Firebase is used for user authentication. Ensure that your Firebase project is properly configured and the credentials are added to your `.env` file.
-
-## Contributing
-
-1. Fork the repository.
-2. Create your feature branch: `git checkout -b feature/my-new-feature`.
-3. Commit your changes: `git commit -am 'Add some feature'`.
-4. Push to the branch: `git push origin feature/my-new-feature`.
-5. Submit a pull request.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -112,4 +73,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Feel free to modify this template to better suit the specifics of your project.
-
+```
