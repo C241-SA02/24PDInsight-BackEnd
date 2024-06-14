@@ -3,7 +3,7 @@ const cors = require('cors');
 
 const { upload } = require('./bucket');
 const { uploadHandler } = require('./handler');
-const { addUserHandler, firestore, getReadableTimestamp } = require('./firestore');
+const { addUserHandler, firestore } = require('./firestore');
 
 const app = express();
 
@@ -37,7 +37,7 @@ app.get('/api/getdata', async (req, res) => {
             return res.status(404).send('Document not found');
         }
         
-        const now = getReadableTimestamp()
+        const now = moment().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
         console.log("Hit on", now);
 
         return res.status(200).json({
@@ -75,7 +75,7 @@ app.get('/api/gethistory', async (req, res) => {
             });
         });
 
-        const now = getReadableTimestamp();
+        const now = moment().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
         console.log("Hit on", now);
 
         return res.status(200).json({

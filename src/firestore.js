@@ -64,7 +64,7 @@ const updateDataToFirestore = async (
   inputDataTitle
 ) => {
   const userCollectionRef = firestore.collection("users").doc(userID).collection("transcribe");
-  const now = getReadableTimestamp()
+  const now = moment().tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
   const userDocRef = userCollectionRef.doc(docID);
   const retreivedData = {
     [inputDataTitle]: data[inputDataTitle],
