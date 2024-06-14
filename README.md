@@ -1,4 +1,3 @@
-```markdown
 # 24PDInsight BackEnd
 
 This repository contains the backend code for the 24PDInsight project. The backend is developed using JavaScript and the Express.js framework, and it is deployed on Google Cloud Platform (GCP) using Cloud Run.
