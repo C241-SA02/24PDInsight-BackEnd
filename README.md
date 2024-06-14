@@ -1,5 +1,3 @@
-Certainly! Here's the updated `README.md` template with the modification in step 3 to include instructions for adding a `service-account.json` file:
-
 ```markdown
 # 24PDInsight BackEnd
 
